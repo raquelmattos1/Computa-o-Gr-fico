@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwimGreen</title>
+</head>
+<body>
+    <canvas id="myCanvas" width="1000" height="500" style="border:solid 2px black">
+    </canvas>
+    <script>
+        window.onload = () => {
+           // setInterval(init, 1000);
+            init()
+            render();
+        };
+
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const W = canvas.width, H = canvas.height;
+        let b = new Array();
+
+        class Bolha{
+            constructor(x, y, r, xend, yend) {
+                this.x = x;
+                this.y = y;
+                this.r = r;
+                this.xend = xend;
+                this.yend = yend;
+                this.ended = false;
+            }
+
+            draw(){
+                ctx.fillStyle = '#7393F5';
+                ctx.strokeStyle = "white"
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+
+            }
+
+            update(){
+                if(this.y >= this.yend){
+                    this.y -= 10;
+                } else {
+                   // this.y == this.yend;
+                   // this.ended = true;
+                    this.x = this.r + Math.random() * (W - 2 * this.r);
+                    this.y =  H +this.r ;
+                }
+                
+            }
+        }
+
+        function init(){
+            for (let i = 0; i < 10; i++){
+                
+                let rad = Math.floor(Math.random() * 20) + 5;
+
+                let xInit =rad + Math.random() * (W - 2 * rad);
+                let yInit = H +rad;
+
+                let xEnd = xInit;
+                let yEnd = Math.floor(Math.random() * 250) + 150;
+
+                b.push(new Bolha(xInit, yInit, rad, xEnd, yEnd))
+                
+            }
+        }
+
+        
+
+        function render(){
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#4654F5';
+            ctx.fillRect(0, 0, W, H);
+            b.forEach(bolha => {
+                if (!bolha.ended ){
+                    bolha.draw();
+                    bolha.update();
+                }
+                
+            })
+            
+            
+            window.requestAnimationFrame(render)
+            
+            
+        }
+    </script>
+    <style>
+    </style>
+</body>
+</html>
