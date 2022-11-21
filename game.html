@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click</title>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="1000" height="500" style="border:solid 2px black"></canvas>
+    <script>
+        window.onload = () => {
+            init()
+            setInterval(createLixo,5000);
+            render();  //start the animation
+        };
+
+        const canvas = document.querySelector('#myCanvas');
+        const ctx = canvas.getContext("2d");
+
+        const W = canvas.width, H = canvas.height;
+
+        let l = new Array();    /* array do lixo */
+        let p1 = new Array();   /* array do peixe nível 1 */
+        let p2 = new Array();   /* array do peixe nível 2 */
+        let p3 = new Array();   /* array do peixe nível 3 */
+        let p4 = new Array();   /* array do peixe nível 4 */
+        let p5 = new Array();   /* array do peixe nível 5 */
+
+        let click = false       /* verifica se o rato esta encima do objeto */
+        let move = false;        /* verifica se o objeto foi selecionado para ser movido */
+        let create2 = false; 
+        let create3 = false; 
+        let create4 = false; 
+        let create5 = false     /* verifica se os objetos foram juntados para criar um objeto do nivel acima */
+
+        let imgL = new Image();
+        imgL.src = "img/trash.png";
+        let imgP1 = new Image();
+        imgP1.src = "img/peixe_1.png"
+        let imgP2 = new Image();
+        imgP2.src = "img/peixe_5.png"
+        let imgP3 = new Image();
+        imgP3.src = "img/peixe_3.png"
+        let imgP4 = new Image();
+        imgP4.src = "img/peixe_2.png"
+        let imgP5 = new Image();
+        imgP5.src = "img/peixe_4.png"
+
+        class Lixo {
+            constructor(x, y, w, h) {
+                this.x = x;
+                this.y = y;
+                this.w = w;
+                this.h = h;
+                this.visible = true
+            }
+            draw() {
+                if (this.visible) {
+                    ctx.drawImage(imgL, this.x, this.y, this.w, this.h);
+                }
+            }
+        }
+
+        class Peixe1{
+            constructor(x,y,w,h,xend,yend){
+                this.x = x;         /* posição inicial de X */
+                this.y = y;         /* posição inicial de Y */
+                this.w = w;         /* largura do retãngulo */
+                this.h = h;         /* altura do retãngulo */
+                this.xend = xend;   /* posição final do X */
+                this.yend = yend;   /* posição final do Y */
+                this.drag = false   
+                this.visible = true /* variavel que diz se é visivel ou não */
+            }
+            draw() {
+                ctx.drawImage(imgP1, this.x, this.y, this.w, this.h);
+            }
+            update(){
+                if(this.x < 0){
+                    this.x = 0;
+                }
+                if(this.x > W-this.w){
+                    this.x = W-this.w;
+                }
+                if(this.y < 0){
+                    this.y = 0;
+                }
+                if(this.y > H-this.h){
+                    this.y = H-this.h
+                }
+
+                if(move==false){
+                    if (this.y<=this.yend){
+                        this.y+=10
+                    }else{
+                        this.y==this.yend
+                    }
+                }
+            }
+        }
+
+        class Peixe2{
+            constructor(x,y,w,h,xend,yend){
+                this.x = x;         /* posição inicial de X */
+                this.y = y;         /* posição inicial de Y */
+                this.w = w;         /* largura do retãngulo */
+                this.h = h;         /* altura do retãngulo */
+                this.visible = true /* variavel que diz se é visivel ou não */
+                this.drag = false
+            }
+            draw() {
+                ctx.drawImage(imgP2, this.x, this.y, this.w, this.h);
+            }
+            update(){
+                if(this.x < 0){
+                    this.x =0;
+                }
+                if(this.x > W-this.w){
+                    this.x = W-this.w;
+                }
+                if(this.y < 0){
+                    this.y = 0;
+                }
+                if(this.y > H-this.h){
+                    this.y = H-this.h
+                }
+            }
+        }
+
+        class Peixe3{
+            constructor(x,y,w,h,xend,yend) {
+                this.x = x;         /* posição inicial de X */
+                this.y = y;         /* posição inicial de Y */
+                this.w = w;         /* largura do retãngulo */
+                this.h = h;         /* altura do retãngulo */
+                this.visible = true /* variavel que diz se é visivel ou não */
+                this.drag = false
+            }
+            draw() {
+                ctx.drawImage(imgP3, this.x, this.y, this.w, this.h);
+            }
+            update(){
+                if(this.x < 0){
+                    this.x =0;
+                }
+                if(this.x > W-this.w){
+                    this.x = W-this.w;
+                }
+                if(this.y < 0){
+                    this.y = 0;
+                }
+                if(this.y > H-this.h){
+                    this.y = H-this.h
+                }
+            }
+        }
+
+        class Peixe4{
+            constructor(x,y,w,h,xend,yend){
+                this.x = x;         /* posição inicial de X */
+                this.y = y;         /* posição inicial de Y */
+                this.w = w;         /* largura do retãngulo */
+                this.h = h;         /* altura do retãngulo */
+                this.visible = true /* variavel que diz se é visivel ou não */
+                this.drag = false
+            }
+            draw() {
+                ctx.drawImage(imgP4, this.x, this.y, this.w, this.h);
+            }
+            update(){
+                if(this.x < 0){
+                    this.x =0;
+                }
+                if(this.x > W-this.w){
+                    this.x = W-this.w;
+                }
+                if(this.y < 0){
+                    this.y = 0;
+                }
+                if(this.y > H-this.h){
+                    this.y = H-this.h
+                }
+            }
+        }
+
+        class Peixe5{
+            constructor(x,y,w,h,xend,yend){
+                this.x = x;         /* posição inicial de X */
+                this.y = y;         /* posição inicial de Y */
+                this.w = w;         /* largura do retãngulo */
+                this.h = h;         /* altura do retãngulo */
+                this.visible = true /* variavel que diz se é visivel ou não */
+                this.drag = false
+            }
+            draw() {
+                ctx.drawImage(imgP5, this.x, this.y, this.w, this.h);
+            }
+            update(){
+                if(this.x < 0){
+                    this.x =0;
+                }
+                if(this.x > W-this.w){
+                    this.x = W-this.w;
+                }
+                if(this.y < 0){
+                    this.y = 0;
+                }
+                if(this.y > H-this.h){
+                    this.y = H-this.h
+                }
+            }
+        }
+
+        function init() {
+            let xInitL = 40 + Math.random() * (W - 2 * 40);     /* lixo aparece numa posição x aleatória sem ser cortado */
+            let yInitL = 40 + Math.random() * (H - 2 * 40);     /* lixo aparece numa posição y aleatória sem ser cortado */
+
+            l.push(new Lixo(xInitL, yInitL, 40, 40))            /* cria um novo objeto lixo e coloca-o no array */
+
+            let xInitP = 50 + Math.random() * (W - 2 * 50);
+            let yInitP = -50
+            let xWidthP = 50
+            let yHeightP = 50
+            let xEndP = xInitP
+            let yEndP = 50 + Math.random() * (H - 2 * 50);
+
+            p1.push(new Peixe1(xInitP, yInitP, xWidthP, yHeightP, xEndP, yEndP));
+        }
+
+        function render() {
+            ctx.fillStyle = "white"
+            ctx.fillRect(0, 0, W, H);
+
+            l.forEach(lixo => {
+                lixo.draw()
+            });
+
+            p1.forEach(peixe1 => {
+                if (peixe1.visible) {
+                    peixe1.draw();
+                    peixe1.update();
+                }
+            });
+
+            p2.forEach(peixe2 => {   
+                if(peixe2.visible){
+                    peixe2.draw();
+                    peixe2.update();
+                }
+            })
+
+            p3.forEach(peixe3 => {   
+                if(peixe3.visible){
+                    peixe3.draw();
+                    peixe3.update();
+                }
+            })
+
+            p4.forEach(peixe4 => {
+                if(peixe4.visible){
+                    peixe4.draw();
+                    peixe4.update();
+                }
+            })
+
+            p5.forEach(peixe5 => {
+                peixe5.draw();
+                peixe5.update();
+            })
+
+            requestAnimationFrame(render)
+        }
+
+        function createLixo(){              /* função cria novo objeto lixo quando chamada */
+            let xInitL = 40 + Math.random() * (W - 2 * 40);
+            let yInitL = 40 + Math.random() * (H - 2 * 40);
+
+            l.push(new Lixo(xInitL, yInitL, 40, 40))
+        }
+
+        function newPeixe2(x1, y1) { 
+            if(create2==true){
+                let xInitP = x1
+                let yInitP = y1
+                let xWidthP = 50
+                let yHeightP = 50
+                
+                p2.push(new Peixe2(xInitP, yInitP, xWidthP, yHeightP));
+                create2=false
+            }
+            console.log(p1)
+            console.log(p2)
+        }
+
+        function newPeixe3(x2, y2) { 
+            if(create3==true){
+                let xInitP = x2
+                let yInitP = y2
+                let xWidthP = 50
+                let yHeightP = 50
+
+                p3.push(new Peixe3(xInitP, yInitP, xWidthP, yHeightP));
+                create3=false
+            }
+            /* console.log(p1)
+            console.log(p2) */
+            console.log(p3);
+        }
+
+        function newPeixe4(x3,y3) { 
+            if(create4==true){
+                let xInitP = x3
+                let yInitP = y3
+                let xWidthP = 50
+                let yHeightP = 50
+
+                p4.push(new Peixe4(xInitP, yInitP, xWidthP, yHeightP));
+                create4=false
+            }
+        }
+
+        function newPeixe5(x4,y4) { 
+            if(create5==true){
+                let xInitP = x4
+                let yInitP = y4
+                let xWidthP = 50
+                let yHeightP = 50
+
+                p5.push(new Peixe5(xInitP, yInitP, xWidthP, yHeightP));
+                create5=false
+            }
+        }
+
+        canvas.addEventListener('click', e => {
+            xMouse = e.offsetX; yMouse = e.offsetY;
+
+            for (let i = 0; i < l.length; i++) {
+
+                let dx = l[i].x - xMouse;
+                let dy = l[i].y - yMouse;
+                let D = Math.sqrt(dx * dx + dy * dy);
+
+                if (D < l[i].w || D < l[i].h) {
+                    l[i].visible = false
+                    let xInitP1 = 50 + Math.random() * (W - 2 * 50);
+                    let yInitP1 = -50
+                    let xWidthP1 = 50
+                    let yHeightP1 = 50
+                    let xEndP1 = xInitP1
+                    let yEndP1 = 50 + Math.random() * (H - 2 * 50);
+
+                    p1.push(new Peixe1(xInitP1, yInitP1, xWidthP1, yHeightP1, xEndP1, yEndP1));
+                }
+            }
+        });
+
+        canvas.addEventListener('mousedown', e => {
+            xMouse = e.offsetX; yMouse = e.offsetY;
+            move=true
+
+            for (let i = 0; i < p1.length; i++) {                   /* ver se quando se da click em cima dos animais */
+                let dx = p1[i].x - xMouse;
+                let dy = p1[i].y - yMouse;
+                let D = Math.sqrt(dx * dx + dy * dy);
+
+                if (D < p1[i].w || D < p1[i].h) {
+                    click=true
+                    p1[i].drag = true
+                }
+            }
+
+            for (let i = 0; i < p2.length; i++) {
+                let dx = p2[i].x - xMouse;
+                let dy = p2[i].y - yMouse;
+                let D = Math.sqrt(dx * dx + dy * dy);
+
+                if (D < p2[i].w || D < p2[i].h) {
+                    click=true
+                    p2[i].drag = true
+                }
+            }
+
+            for (let i = 0; i < p3.length; i++) {
+                let dx = p3[i].x - xMouse;
+                let dy = p3[i].y - yMouse;
+                let D = Math.sqrt(dx * dx + dy * dy);
+
+                if (D < p3[i].w || D < p3[i].h) {
+                    click=true
+                    p3[i].drag = true
+                }
+            }
+
+            for (let i = 0; i < p4.length; i++) {
+                let dx = p4[i].x - xMouse;
+                let dy = p4[i].y - yMouse;
+                let D = Math.sqrt(dx * dx + dy * dy);
+
+                if (D < p4[i].w || D < p4[i].h) {
+                    click=true
+                    p4[i].drag = true
+                }
+            }
+        });
+
+        canvas.addEventListener('mousemove', e => {
+            xMouse = e.offsetX; yMouse = e.offsetY;
+            if (click==true) {
+                for (let i = 0; i < p1.length; i++) {
+                    if (p1[i].drag == true){
+                        let dx = p1[i].x - xMouse;
+                        let dy = p1[i].y - yMouse;
+                        let D = Math.sqrt(dx * dx + dy * dy);
+
+                        if (D > p1[i].w || D > p1[i].h) {
+                            if (p1[i].drag){
+                                p1[i].x = xMouse
+                                p1[i].y = yMouse
+                                
+                            }
+                        }
+                    }
+                }
+            
+                for(let i = 0; i < p2.length; i++) {
+                    if (p2[i].drag == true){
+                        let dx = p2[i].x - xMouse;
+                        let dy = p2[i].y - yMouse;
+                        let D = Math.sqrt(dx * dx + dy * dy);
+
+                        if (D > p2[i].w || D > p2[i].h) {
+                                p2[i].x = xMouse
+                                p2[i].y = yMouse
+                        }
+                    }
+                }
+            
+                for (let i = 0; i < p3.length; i++) {
+                    if (p3[i].drag == true){
+                        let dx = p3[i].x - xMouse;
+                        let dy = p3[i].y - yMouse;
+                        let D = Math.sqrt(dx * dx + dy * dy);
+
+                        if (D > p3[i].w || D > p3[i].h) {
+                                p3[i].x = xMouse
+                                p3[i].y = yMouse
+                        }
+                    }
+                }
+            
+                for (let i = 0; i < p4.length; i++) {
+                    if (p4[i].drag == true){
+                        let dx = p4[i].x - xMouse;
+                        let dy = p4[i].y - yMouse;
+                        let D = Math.sqrt(dx * dx + dy * dy);
+
+                        if (D > p4[i].w || D > p4[i].h) {
+                                p4[i].x = xMouse
+                                p4[i].y = yMouse
+                        }
+                    }
+                }
+            }
+        })
+
+        canvas.addEventListener('mouseup', e=>{
+            xMouse = e.offsetX; yMouse = e.offsetY;
+            click=false;
+            let x1=0, x2=0, x3=0, x4=0
+            let y1=0, y2=0, y3=0, y4=0
+
+            for ( let i = 0; i < p1.length; i++){ 
+                p1[i].drag=false
+                for ( let j = i + 1; j < p1.length; j++){
+                    let dx = p1[i].x - p1[j].x;
+                    let dy = p1[i].y - p1[j].y;
+                    let D = Math.sqrt(dx * dx + dy * dy);
+
+                    if (D < p1[i].w || D < p1[i].h) {
+                        p1[i].visible = false;
+                        p1[j].visible = false;
+
+                        let x1=p1[i].x
+                        let y1=p1[i].y
+
+                        /* const index1 = p1.find(peixe1 => {
+                        return peixe1.visible === false;
+                        });
+                        const index2 = p1.find(peixe1 => {
+                        return peixe1.visible === false;
+                        });
+                        p1.splice(index1, 1);
+                        p1.splice(index2, 1) */
+
+                        create2=true
+                        
+                    }
+                }
+            }
+
+            for ( let i = 0; i < p2.length; i++){ 
+                p2[i].drag=false
+                for ( let j = i + 1; j < p2.length; j++){
+                    let dx = p2[i].x - p2[j].x;
+                    let dy = p2[i].y - p2[j].y;
+                    let D = Math.sqrt(dx * dx + dy * dy);
+
+                    if (D < p2[i].w || D < p2[i].h) {
+                        p2[i].visible = false;
+                        p2[j].visible = false;
+                        let x2=p2[i].x
+                        let y2=p2[i].y
+
+                        create3=true
+                        
+                    }
+                }
+            }
+
+            for ( let i = 0; i < p3.length; i++){ 
+                p3[i].drag=false
+                for ( let j = i + 1; j < p3.length; j++){
+                    let dx = p3[i].x - p3[j].x;
+                    let dy = p3[i].y - p3[j].y;
+                    let D = Math.sqrt(dx * dx + dy * dy);
+
+                    if (D < p3[i].w || D < p3[i].h) {
+                        p3[i].visible = false;
+                        p3[j].visible = false;
+                        let x3=p3[i].x
+                        let y3=p3[i].y
+
+                        create4=true
+                        
+                    }
+                }
+            }
+
+            for ( let i = 0; i < p4.length; i++){ 
+                p4[i].drag=false
+                for ( let j = i + 1; j < p4.length; j++){
+                    let dx = p4[i].x - p4[j].x;
+                    let dy = p4[i].y - p4[j].y;
+                    let D = Math.sqrt(dx * dx + dy * dy);
+
+                    if (D < p4[i].w || D < p4[i].h) {
+                        p4[i].visible = false;
+                        p4[j].visible = false;
+                        let x4=p4[i].x
+                        let y4=p4[i].y
+
+                        create5=true
+                        
+                    }
+                }
+            }
+            newPeixe2(x1, y1)
+            newPeixe3(x2, y2)
+            newPeixe4(x3, y3)
+            newPeixe5(x4, y4)
+        })
+
+    </script>
+</body>
+
+</html>
