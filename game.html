@@ -4,16 +4,27 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Click</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+    <title>SwimGreen</title>
 </head>
 
 <body>
-    <canvas id="myCanvas" width="1000" height="500" style="border:solid 2px black"></canvas>
+    <embed src="Under the Sea (From The Little Mermaid  Soundtrack Version).mp3" loop="true" autostart="true" width="0" height="0">
+    <div style = "text-align:center;">
+        <canvas id="myCanvas" width="1100" height="500" style="border:solid 2px black"></canvas>
+    </div>
+    <div class="btnJogo">
+        <a href="homepage.html"><button class="btn">Home</button></a><a href="game.html"><button class="btn">Jogar</button></a>
+    </div>
+    
     <script>
         window.onload = () => {
-            init()
-            setInterval(createLixo,5000);
-            render();  //start the animation
+            if(fim==false){                         /* Fazer até o jogo terminar */
+                init()                          
+                setInterval(createLixo,5000);       
+            }
+            render();
         };
 
         const canvas = document.querySelector('#myCanvas');
@@ -21,15 +32,22 @@
 
         const W = canvas.width, H = canvas.height;
 
+        let fim = false
+
         let l = new Array();    /* array do lixo */
         let p1 = new Array();   /* array do peixe nível 1 */
         let p2 = new Array();   /* array do peixe nível 2 */
         let p3 = new Array();   /* array do peixe nível 3 */
         let p4 = new Array();   /* array do peixe nível 4 */
         let p5 = new Array();   /* array do peixe nível 5 */
+        let b = new Array();       /* array de bolhas */
 
         let click = false       /* verifica se o rato esta encima do objeto */
         let move = false;        /* verifica se o objeto foi selecionado para ser movido */
+        let leave1 = false
+        let leave2 = false
+        let leave3 = false;
+        let leave4 = false;
         let create2 = false; 
         let create3 = false; 
         let create4 = false; 
@@ -48,6 +66,37 @@
         let imgP5 = new Image();
         imgP5.src = "img/peixe_4.png"
 
+        
+        class Bolha{
+            constructor(x, y, r, xend, yend) {
+                this.x = x;
+                this.y = y;
+                this.r = r;
+                this.xend = xend;
+                this.yend = yend;
+                this.ended = false;
+            }
+            draw(){
+                ctx.fillStyle = '#7393F5';
+                ctx.strokeStyle = "white"
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+            }
+            update(){
+                if(this.y >= this.yend){
+                    this.y -= 10;
+                } else {
+                   // this.y == this.yend;
+                   // this.ended = true;
+                    this.x = this.r + Math.random() * (W - 2 * this.r);
+                    this.y =  H +this.r ;
+                }
+                
+            }
+        }
+
         class Lixo {
             constructor(x, y, w, h) {
                 this.x = x;
@@ -63,7 +112,7 @@
             }
         }
 
-        class Peixe1{
+        class Peixe1{                       /* Carangueijo */
             constructor(x,y,w,h,xend,yend){
                 this.x = x;         /* posição inicial de X */
                 this.y = y;         /* posição inicial de Y */
@@ -75,7 +124,9 @@
                 this.visible = true /* variavel que diz se é visivel ou não */
             }
             draw() {
-                ctx.drawImage(imgP1, this.x, this.y, this.w, this.h);
+                if(this.visible){
+                    ctx.drawImage(imgP1, this.x, this.y, this.w, this.h);
+                }
             }
             update(){
                 if(this.x < 0){
@@ -91,7 +142,7 @@
                     this.y = H-this.h
                 }
 
-                if(move==false){
+                if(move==false){                    /* Variavel determina se o carangueijo pode cair */
                     if (this.y<=this.yend){
                         this.y+=10
                     }else{
@@ -101,7 +152,7 @@
             }
         }
 
-        class Peixe2{
+        class Peixe2{                       /* Cavalo Marinho */
             constructor(x,y,w,h,xend,yend){
                 this.x = x;         /* posição inicial de X */
                 this.y = y;         /* posição inicial de Y */
@@ -111,7 +162,9 @@
                 this.drag = false
             }
             draw() {
-                ctx.drawImage(imgP2, this.x, this.y, this.w, this.h);
+                if(this.visible){
+                    ctx.drawImage(imgP2, this.x, this.y, this.w, this.h);
+                }
             }
             update(){
                 if(this.x < 0){
@@ -129,7 +182,7 @@
             }
         }
 
-        class Peixe3{
+        class Peixe3{                       /* Peixe Palhaço */
             constructor(x,y,w,h,xend,yend) {
                 this.x = x;         /* posição inicial de X */
                 this.y = y;         /* posição inicial de Y */
@@ -139,7 +192,9 @@
                 this.drag = false
             }
             draw() {
-                ctx.drawImage(imgP3, this.x, this.y, this.w, this.h);
+                if(this.visible){
+                    ctx.drawImage(imgP3, this.x, this.y, this.w, this.h);
+                }
             }
             update(){
                 if(this.x < 0){
@@ -157,7 +212,7 @@
             }
         }
 
-        class Peixe4{
+        class Peixe4{                       /* Tartaruga */
             constructor(x,y,w,h,xend,yend){
                 this.x = x;         /* posição inicial de X */
                 this.y = y;         /* posição inicial de Y */
@@ -167,7 +222,9 @@
                 this.drag = false
             }
             draw() {
-                ctx.drawImage(imgP4, this.x, this.y, this.w, this.h);
+                if(this.visible){
+                    ctx.drawImage(imgP4, this.x, this.y, this.w, this.h);
+                }
             }
             update(){
                 if(this.x < 0){
@@ -185,7 +242,7 @@
             }
         }
 
-        class Peixe5{
+        class Peixe5{                       /* Baleia */
             constructor(x,y,w,h,xend,yend){
                 this.x = x;         /* posição inicial de X */
                 this.y = y;         /* posição inicial de Y */
@@ -195,7 +252,9 @@
                 this.drag = false
             }
             draw() {
-                ctx.drawImage(imgP5, this.x, this.y, this.w, this.h);
+                if(this.visible){
+                    ctx.drawImage(imgP5, this.x, this.y, this.w, this.h);
+                }
             }
             update(){
                 if(this.x < 0){
@@ -214,6 +273,20 @@
         }
 
         function init() {
+            for (let i = 0; i < 10; i++){                   /* ciclo for das bolhas */
+                
+                let rad = Math.floor(Math.random() * 20) + 5;
+
+                let xInit =rad + Math.random() * (W - 2 * rad);
+                let yInit = H +rad;
+
+                let xEnd = xInit;
+                let yEnd = Math.floor(Math.random() * 250) + 150;
+
+                b.push(new Bolha(xInit, yInit, rad, xEnd, yEnd))
+                
+            }
+
             let xInitL = 40 + Math.random() * (W - 2 * 40);     /* lixo aparece numa posição x aleatória sem ser cortado */
             let yInitL = 40 + Math.random() * (H - 2 * 40);     /* lixo aparece numa posição y aleatória sem ser cortado */
 
@@ -226,51 +299,7 @@
             let xEndP = xInitP
             let yEndP = 50 + Math.random() * (H - 2 * 50);
 
-            p1.push(new Peixe1(xInitP, yInitP, xWidthP, yHeightP, xEndP, yEndP));
-        }
-
-        function render() {
-            ctx.fillStyle = "white"
-            ctx.fillRect(0, 0, W, H);
-
-            l.forEach(lixo => {
-                lixo.draw()
-            });
-
-            p1.forEach(peixe1 => {
-                if (peixe1.visible) {
-                    peixe1.draw();
-                    peixe1.update();
-                }
-            });
-
-            p2.forEach(peixe2 => {   
-                if(peixe2.visible){
-                    peixe2.draw();
-                    peixe2.update();
-                }
-            })
-
-            p3.forEach(peixe3 => {   
-                if(peixe3.visible){
-                    peixe3.draw();
-                    peixe3.update();
-                }
-            })
-
-            p4.forEach(peixe4 => {
-                if(peixe4.visible){
-                    peixe4.draw();
-                    peixe4.update();
-                }
-            })
-
-            p5.forEach(peixe5 => {
-                peixe5.draw();
-                peixe5.update();
-            })
-
-            requestAnimationFrame(render)
+            p1.push(new Peixe1(xInitP, yInitP, xWidthP, yHeightP, xEndP, yEndP));   /* Cria um novo carangueijo e põe no array */
         }
 
         function createLixo(){              /* função cria novo objeto lixo quando chamada */
@@ -280,7 +309,9 @@
             l.push(new Lixo(xInitL, yInitL, 40, 40))
         }
 
-        function newPeixe2(x1, y1) { 
+        function newPeixe2(x1, y1) {
+            console.log(create2)
+            console.log(create3)
             if(create2==true){
                 let xInitP = x1
                 let yInitP = y1
@@ -290,8 +321,6 @@
                 p2.push(new Peixe2(xInitP, yInitP, xWidthP, yHeightP));
                 create2=false
             }
-            console.log(p1)
-            console.log(p2)
         }
 
         function newPeixe3(x2, y2) { 
@@ -304,9 +333,6 @@
                 p3.push(new Peixe3(xInitP, yInitP, xWidthP, yHeightP));
                 create3=false
             }
-            /* console.log(p1)
-            console.log(p2) */
-            console.log(p3);
         }
 
         function newPeixe4(x3,y3) { 
@@ -330,43 +356,126 @@
 
                 p5.push(new Peixe5(xInitP, yInitP, xWidthP, yHeightP));
                 create5=false
+                fim=true
             }
+        }
+
+        function render() {
+
+            if(fim==false) {
+                ctx.fillStyle = '#4654F5';
+                ctx.fillRect(0, 0, W, H);
+
+                b.forEach(bolha => {
+                    if (!bolha.ended ){
+                        bolha.draw();
+                        bolha.update();
+                    }
+                })
+
+                l.forEach(lixo => {
+                    lixo.draw()
+                });
+
+                p1.forEach(peixe1 => {
+                    if (peixe1.visible) {
+                        peixe1.draw();
+                        peixe1.update();
+                    }
+                });
+
+                p2.forEach(peixe2 => {   
+                    if(peixe2.visible){
+                        peixe2.draw();
+                        peixe2.update();
+                    }
+                })
+
+                p3.forEach(peixe3 => {   
+                    if(peixe3.visible){
+                        peixe3.draw();
+                        peixe3.update();
+                    }
+                })
+
+                p4.forEach(peixe4 => {
+                    if(peixe4.visible){
+                        peixe4.draw();
+                        peixe4.update();
+                    }
+                })
+
+                p5.forEach(peixe5 => {
+                    peixe5.draw();
+                    peixe5.update();
+                })
+            }
+
+            if(fim==true){
+                ctx.fillStyle = '#439dd9';
+                ctx.fillRect(0, 0, W, H);
+
+                let x=Math.floor(Math.random() * (W+1))
+                let y=Math.floor(Math.random() * (H+1))
+
+                ctx.strokeStyle= getRandomColor()
+                ctx.lineWidth=5
+                ctx.beginPath();
+                ctx.moveTo(W/2,H/2)
+                ctx.lineTo(x,y)
+                ctx.stroke()
+
+                ctx.font = "100px Fredoka one";
+                ctx.fillStyle = "rgb(207,181,59)";
+                ctx.textAlign = "center";
+                ctx.fillText("Parabéns Ganhaste!!!", W/2, H/2);
+            }
+           
+            requestAnimationFrame(render)
+            
+        }
+
+        function getRandomColor() {
+        let r = Math.floor(Math.random() * 256);
+        let g = Math.floor(Math.random() * 256);
+        let b = Math.floor(Math.random() * 256);
+
+        return `rgb(${r},${g},${b})`;
         }
 
         canvas.addEventListener('click', e => {
             xMouse = e.offsetX; yMouse = e.offsetY;
+            move=false                                  /* Variavel para começar a queda dos carangueijos */
 
-            for (let i = 0; i < l.length; i++) {
-
+            for (let i = 0; i < l.length; i++) {        /* Corre o array l dos lixos */
                 let dx = l[i].x - xMouse;
                 let dy = l[i].y - yMouse;
-                let D = Math.sqrt(dx * dx + dy * dy);
+                let D = Math.sqrt(dx * dx + dy * dy);   /* Calculo da distancia do objeto lixo para a posição do rato */
 
-                if (D < l[i].w || D < l[i].h) {
+                if (D < l[i].w || D < l[i].h) {         /* Compara a distancia do objeto lixo para a posição do rato */
                     l[i].visible = false
-                    let xInitP1 = 50 + Math.random() * (W - 2 * 50);
-                    let yInitP1 = -50
-                    let xWidthP1 = 50
-                    let yHeightP1 = 50
-                    let xEndP1 = xInitP1
-                    let yEndP1 = 50 + Math.random() * (H - 2 * 50);
+                    let xInitP = 50 + Math.random() * (W - 2 * 50);
+                    let yInitP = -100
+                    let xWidthP = 50
+                    let yHeightP = 50
+                    let xEndP = xInitP
+                    let yEndP = 50 + Math.random() * (H - 2 * 50);
 
-                    p1.push(new Peixe1(xInitP1, yInitP1, xWidthP1, yHeightP1, xEndP1, yEndP1));
+                    p1.push(new Peixe1(xInitP, yInitP, xWidthP, yHeightP, xEndP, yEndP));
                 }
             }
         });
 
         canvas.addEventListener('mousedown', e => {
             xMouse = e.offsetX; yMouse = e.offsetY;
-            move=true
-
-            for (let i = 0; i < p1.length; i++) {                   /* ver se quando se da click em cima dos animais */
+            move=true                                     /* A variavel para o movimento do carangueijo */          
+            for (let i = 0; i < p1.length; i++) {         /* Corre o array p1(carangueijos) */
                 let dx = p1[i].x - xMouse;
                 let dy = p1[i].y - yMouse;
                 let D = Math.sqrt(dx * dx + dy * dy);
 
-                if (D < p1[i].w || D < p1[i].h) {
-                    click=true
+                if (D < p1[i].w || D < p1[i].h) {           /* Comparar a distancia para saber se o rato esta em cima do objeto */
+                    click=true                              /* Variavel que comprova se o rato clicou no  */
                     p1[i].drag = true
                 }
             }
@@ -407,6 +516,7 @@
 
         canvas.addEventListener('mousemove', e => {
             xMouse = e.offsetX; yMouse = e.offsetY;
+            
             if (click==true) {
                 for (let i = 0; i < p1.length; i++) {
                     if (p1[i].drag == true){
@@ -418,7 +528,8 @@
                             if (p1[i].drag){
                                 p1[i].x = xMouse
                                 p1[i].y = yMouse
-                                
+
+                                leave1=true
                             }
                         }
                     }
@@ -431,8 +542,12 @@
                         let D = Math.sqrt(dx * dx + dy * dy);
 
                         if (D > p2[i].w || D > p2[i].h) {
+                            if (p2[i].drag){
                                 p2[i].x = xMouse
                                 p2[i].y = yMouse
+
+                                leave2=true
+                            }
                         }
                     }
                 }
@@ -444,8 +559,12 @@
                         let D = Math.sqrt(dx * dx + dy * dy);
 
                         if (D > p3[i].w || D > p3[i].h) {
+                            if (p3[i].drag){
                                 p3[i].x = xMouse
                                 p3[i].y = yMouse
+
+                                leave3=true
+                            }
                         }
                     }
                 }
@@ -457,8 +576,12 @@
                         let D = Math.sqrt(dx * dx + dy * dy);
 
                         if (D > p4[i].w || D > p4[i].h) {
+                            if (p4[i].drag){
                                 p4[i].x = xMouse
                                 p4[i].y = yMouse
+
+                                leave4=true
+                            }
                         }
                     }
                 }
@@ -466,93 +589,101 @@
         })
 
         canvas.addEventListener('mouseup', e=>{
+            console.log(move)
             xMouse = e.offsetX; yMouse = e.offsetY;
             click=false;
             let x1=0, x2=0, x3=0, x4=0
             let y1=0, y2=0, y3=0, y4=0
 
-            for ( let i = 0; i < p1.length; i++){ 
-                p1[i].drag=false
-                for ( let j = i + 1; j < p1.length; j++){
-                    let dx = p1[i].x - p1[j].x;
-                    let dy = p1[i].y - p1[j].y;
-                    let D = Math.sqrt(dx * dx + dy * dy);
+            if(leave1==true){
+                for ( let i = 0; i < p1.length; i++){ 
+                    p1[i].drag=false
+                    for ( let j = i + 1; j < p1.length; j++){
+                        let dx = p1[i].x - p1[j].x;
+                        let dy = p1[i].y - p1[j].y;
+                        let D = Math.sqrt(dx * dx + dy * dy);
 
-                    if (D < p1[i].w || D < p1[i].h) {
-                        p1[i].visible = false;
-                        p1[j].visible = false;
+                        if(p1[i].visible==true && p1[j].visible==true) {
+                            if (D < p1[i].w || D < p1[i].h) {
+                                p1[i].visible = false;
+                                p1[j].visible = false;
 
-                        let x1=p1[i].x
-                        let y1=p1[i].y
+                                x1=p1[i].x
+                                y1=p1[i].y
 
-                        /* const index1 = p1.find(peixe1 => {
-                        return peixe1.visible === false;
-                        });
-                        const index2 = p1.find(peixe1 => {
-                        return peixe1.visible === false;
-                        });
-                        p1.splice(index1, 1);
-                        p1.splice(index2, 1) */
-
-                        create2=true
-                        
+                                create2=true
+                                leave1=false 
+                            }
+                        }
                     }
                 }
             }
 
-            for ( let i = 0; i < p2.length; i++){ 
-                p2[i].drag=false
-                for ( let j = i + 1; j < p2.length; j++){
-                    let dx = p2[i].x - p2[j].x;
-                    let dy = p2[i].y - p2[j].y;
-                    let D = Math.sqrt(dx * dx + dy * dy);
+            if(leave2==true){
+                for ( let i = 0; i < p2.length; i++){ 
+                    p2[i].drag=false
+                    for ( let j = i + 1; j < p2.length; j++){
+                        let dx = p2[i].x - p2[j].x;
+                        let dy = p2[i].y - p2[j].y;
+                        let D = Math.sqrt(dx * dx + dy * dy);
 
-                    if (D < p2[i].w || D < p2[i].h) {
-                        p2[i].visible = false;
-                        p2[j].visible = false;
-                        let x2=p2[i].x
-                        let y2=p2[i].y
+                        if(p2[i].visible==true && p2[j].visible==true) {
+                            if (D < p2[i].w || D < p2[i].h) {
+                                p2[i].visible = false;
+                                p2[j].visible = false;
+                                x2=p2[i].x
+                                y2=p2[i].y
 
-                        create3=true
-                        
+                                create3=true
+                                leave2=false
+                            }
+                        }
                     }
                 }
             }
 
-            for ( let i = 0; i < p3.length; i++){ 
-                p3[i].drag=false
-                for ( let j = i + 1; j < p3.length; j++){
-                    let dx = p3[i].x - p3[j].x;
-                    let dy = p3[i].y - p3[j].y;
-                    let D = Math.sqrt(dx * dx + dy * dy);
+            if(leave3==true) {
+                for ( let i = 0; i < p3.length; i++){ 
+                    p3[i].drag=false
+                    for ( let j = i + 1; j < p3.length; j++){
+                        let dx = p3[i].x - p3[j].x;
+                        let dy = p3[i].y - p3[j].y;
+                        let D = Math.sqrt(dx * dx + dy * dy);
 
-                    if (D < p3[i].w || D < p3[i].h) {
-                        p3[i].visible = false;
-                        p3[j].visible = false;
-                        let x3=p3[i].x
-                        let y3=p3[i].y
+                        if(p3[i].visible==true && p3[j].visible==true) {
+                            if (D < p3[i].w || D < p3[i].h) {
+                                p3[i].visible = false;
+                                p3[j].visible = false;
+                                x3=p3[i].x
+                                y3=p3[i].y
 
-                        create4=true
-                        
+                                create4=true
+                                leave3=false
+                            }
+                        }
                     }
                 }
             }
 
-            for ( let i = 0; i < p4.length; i++){ 
-                p4[i].drag=false
-                for ( let j = i + 1; j < p4.length; j++){
-                    let dx = p4[i].x - p4[j].x;
-                    let dy = p4[i].y - p4[j].y;
-                    let D = Math.sqrt(dx * dx + dy * dy);
+            if(leave4==true) {
+                for ( let i = 0; i < p4.length; i++){ 
+                    p4[i].drag=false
+                    for ( let j = i + 1; j < p4.length; j++){
+                        let dx = p4[i].x - p4[j].x;
+                        let dy = p4[i].y - p4[j].y;
+                        let D = Math.sqrt(dx * dx + dy * dy);
 
-                    if (D < p4[i].w || D < p4[i].h) {
-                        p4[i].visible = false;
-                        p4[j].visible = false;
-                        let x4=p4[i].x
-                        let y4=p4[i].y
+                        if(p4[i].visible==true && p4[j].visible==true) {
+                            if (D < p4[i].w || D < p4[i].h) {
+                                p4[i].visible = false;
+                                p4[j].visible = false;
+                                x4=p4[i].x
+                                y4=p4[i].y
 
-                        create5=true
-                        
+                                create5=true
+                                leave4=false
+                            }
+                        }
                     }
                 }
             }

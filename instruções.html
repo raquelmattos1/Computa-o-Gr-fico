@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+    <title>SwimGreen</title>
+</head>
+<body>
+    <div class="swimgreenInst" align="center">
+        SwimGreen
+    </div>
+    <div class="titulo" align="left">
+        Como jogar?
+    </div>
+    <div class="text">
+        <ol>
+            <li class="dica1">Clica em cima do lixo para retirá-lo do oceano.<br></li>
+            <li class="dica2">Com cada lixo que apanhares vais criar um novo animal.<br></li>
+            <li class="dica3">Deves juntar os animais iguais para criar novos animais.<br></li>
+            <li class="dica4">Quando chegares a baleia o jogo termina. <br><br></li>
+        </ol>
+    </div>
+    <div style = "text-align:center;">
+        <canvas id="myCanvas" width="1000" height="350" style="border:solid 2px black"></canvas>
+    </div>
+    <div class="btnInst" align="center">
+        <a href="game.html"><button class="btn">Jogar</button></a>
+    </div>
+    <script>
+        const canvas = document.querySelector('#myCanvas');
+        const ctx = canvas.getContext("2d");
+
+        const W = canvas.width, H = canvas.height;
+
+        window.onload = () =>{
+            init();
+            render();
+        }
+
+        let imgL = new Image();
+        imgL.src = "img/trash.png";
+        let imgR = new Image();
+        imgR.src = "img/cursor.png"
+        let imgC1 = new Image();
+        imgC1.src = "img/peixe_1.png"
+        let imgC2 = new Image();
+        imgC2.src = "img/peixe_1.png"
+        let imgCM = new Image();
+        imgCM.src = "img/peixe_5.png"
+
+        let xLixo= 800
+        let yLixo= 110
+        let xCar1= 200
+        let yCar1= 100
+        let xCar2= 500
+        let yCar2= -50
+        let xCavMar= 200
+        let yCavMar= 100
+        let xRato = 500
+        let yRato = 200
+
+        let lixoVis = true
+        let car1Vis = true
+        let car2Vis = false
+        let cavMarVis = false
+
+        let click = true
+        let createCar = false
+        let moveRato = false
+        let moveCar = false
+        let createCM = false 
+
+        function init() {
+            ctx.drawImage(imgL, xLixo, yLixo, 50, 50)
+            ctx.drawImage(imgC1, xCar1, yCar1, 50, 50)
+            ctx.drawImage(imgR, xRato, yRato, 20, 20)
+        }
+
+        function render(){
+            ctx.fillStyle = '#4654F5';
+            ctx.fillRect(0, 0, W, H);
+
+            if(lixoVis==true){
+                ctx.drawImage(imgL, xLixo, yLixo, 50, 50)
+            }
+
+            if(car1Vis==true){
+                ctx.drawImage(imgC1, xCar1, yCar1, 50, 50)
+            }
+
+            if(car2Vis==true){
+                ctx.drawImage(imgC2, xCar2, yCar2, 50, 50)
+            }
+
+            if(cavMarVis==true){
+                ctx.drawImage(imgCM, xCavMar, yCavMar, 50, 50)
+            }
+
+            ctx.drawImage(imgR, xRato, yRato, 20, 20)
+
+            if(click==true){
+                lixoVis=true
+                car1Vis= true
+                cavMarVis=false
+                if(xRato<xLixo+20){
+                    xRato+=5
+                    yRato-=1
+                }else{
+                    click=false
+                    lixoVis=false
+                    createCar=true
+                    car2Vis=true
+                }
+            }
+
+            if(createCar==true){
+                if (yCar2<165){
+                    yCar2+=7
+                }else{
+                    createCar=false
+                    moveRato=true
+                }
+            }
+
+            if (moveRato==true){
+                if(xRato>xCar2+25){
+                    xRato-=5
+                    yRato+=1
+                }else{
+                    moveRato=false
+                    moveCar=true
+                }
+            }
+
+            if(moveCar==true){
+                if(xCar2>xCar1+20){
+                    xCar2-=5
+                    yCar2-=1
+                    xRato-=5
+                    yRato-=1
+                }else{
+                    moveCar=false
+                    car2Vis=false
+                    car1Vis=false
+                    createCM=true
+                }
+            }
+
+            if(createCM==true){
+                cavMarVis=true
+                if(xRato<500){
+                    xRato+=5
+                    yRato+=1
+                }else{
+                    createCM=false
+                    xCar2= 500
+                    yCar2= -50
+                    xRato = 500
+                    yRato = 200
+                    click =true
+                }
+            }
+
+            window.requestAnimationFrame(render)
+        }
+
+    </script>
+</body>
+</html>
